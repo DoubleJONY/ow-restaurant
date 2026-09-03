@@ -1,6 +1,6 @@
 import Icon from '@/components/Icon'
 import { StageIconMap } from '@/components/StageSelector'
-import { getRecipe } from '@/lib/restaurant/restaurant'
+import { sandboxRecipe } from '@/lib/restaurant/sandbox-recipe'
 import { Stage } from '@/lib/restaurant/stage'
 import { Effect } from 'effect'
 import { AnimatePresence, motion } from 'motion/react'
@@ -34,7 +34,7 @@ export default function GameStageSelector({
     onStageSelect(stage.id)
   }
 
-  const recipe = getRecipe(null)
+  const recipe = sandboxRecipe
   const stage = recipe.getStage(stageId).pipe(Effect.runSync)
   const stages = recipe.stages
 

@@ -1,19 +1,17 @@
 'use client'
 
-import { MenuFlowLineInfo } from '@/app/[lang]/(main)/book/[...bookPath]/page'
 import Icon from '@/components/Icon'
 import MenuItem, { MenuItemType } from '@/components/MenuItem'
 import MenuItemFilterButton from '@/components/MenuItemFilterButton'
-import { Recipe } from '@/lib/restaurant/recipe'
-import { getRecipe } from '@/lib/restaurant/restaurant'
+import { Recipe, RecipeJson } from '@/lib/restaurant/recipe'
 import { Solution } from '@/lib/restaurant/solution'
-import { filterFlowLineInfosWithSearchQuery } from '@/lib/search'
+import { filterFlowLineInfosWithSearchQuery, MenuFlowLineInfo } from '@/lib/search'
 import { useSettings } from '@/providers/Settings'
 import { Effect } from 'effect'
 import { AnimatePresence, motion } from 'motion/react'
 import { useTranslations } from 'next-intl'
 import { notFound } from 'next/navigation'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 
 export interface StagePageExecuteResult {
   menuFlowLineInfos: MenuFlowLineInfo[]
@@ -24,12 +22,12 @@ export interface StagePageExecuteResult {
 
 export default function MenuItemList({
   stageId,
-  recipeId,
+  recipeJson,
 }: {
   stageId: number
-  recipeId: string | null
+  recipeJson: RecipeJson
 }) {
-  const recipe = getRecipe(recipeId)
+  const recipe = useMemo(() => Recipe.create(recipeJson).pipe(Effect.runSync), [recipeJson])
 
   const t = useTranslations()
   const settings = useSettings()

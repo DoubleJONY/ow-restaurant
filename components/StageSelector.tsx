@@ -1,12 +1,11 @@
 'use client'
 
+import EditionSelector, { EditionSelectorEdition } from '@/components/EditionSelector'
 import Icon from '@/components/Icon'
 import { Link } from '@/i18n/routing'
-import { CustomRestaurantInfos, FormUrl, getCustomRestaurantInfo } from '@/lib/restaurant/custom'
-import { getRecipe } from '@/lib/restaurant/restaurant'
+import { CustomRestaurantInfo, CustomRestaurantInfos, FormUrl } from '@/lib/restaurant/custom'
 import { AnimatePresence, motion } from 'motion/react'
-import { useLocale, useTranslations } from 'next-intl'
-import { useParams } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import { useState } from 'react'
 
 export const StageIconMap = [
@@ -24,32 +23,24 @@ export const StageIconMap = [
   Icon.Meat,
 ]
 
-export default function StageSelector() {
+export default function StageSelector({
+  stageId,
+  sourceId,
+  isDeluxe,
+  stages,
+  editions,
+  customRestaurantInfo,
+}: {
+  stageId: number
+  sourceId: string
+  isDeluxe: boolean
+  stages: { id: number; name: string }[]
+  editions: EditionSelectorEdition[]
+  customRestaurantInfo: CustomRestaurantInfo | null
+}) {
   const t = useTranslations()
-  const locale = useLocale()
 
   const [modalActive, setModalActive] = useState(false)
-
-  const params = useParams<{ bookPath: string[] }>()
-  const { bookPath } = params
-
-  if (bookPath.length !== 1 && bookPath.length !== 2) return null
-
-  let stageIdText: string
-  switch (bookPath.length) {
-    case 1:
-      stageIdText = bookPath[0]
-      break
-    case 2:
-      stageIdText = bookPath[1]
-      break
-  }
-
-  const recipeId = bookPath.length === 1 ? null : bookPath[0]
-  const stageId = parseInt(stageIdText) || 0
-
-  const stages = getRecipe(recipeId).stages
-  const customRestaurantInfo = getCustomRestaurantInfo(recipeId)
 
   const handleCustomRestaurantClick = () => {
     setModalActive(true)
@@ -80,21 +71,29 @@ export default function StageSelector() {
           <Icon.RightChevron className="size-16" />
         </div>
       </div>
+      <EditionSelector
+        editions={editions}
+        activeEditionId={sourceId}
+        buildHref={(id) => `/book/${id}/0`}
+        label={t('edition')}
+      />
       <div className="flex flex-wrap gap-8">
         {stages.map((stage) => {
           const IconComponent = StageIconMap[stage.id]
+          const showIcon = isDeluxe && sourceId === 'org' && IconComponent
+
           return (
             <Link
               key={stage.id}
-              href={recipeId === null ? `/book/${stage.id}` : `/book/${recipeId}/${stage.id}`}
+              href={`/book/${sourceId}/${stage.id}`}
               data-active={stageId === stage.id}
               className="rounded-8 group data-[active=true]:bg-primary bg-primary-background flex items-center gap-4 px-12 py-6 transition-colors"
             >
-              {recipeId === null && (
+              {showIcon && (
                 <IconComponent className="text-primary size-16 shrink-0 transition-colors group-data-[active=true]:text-white" />
               )}
               <div className="text-14 text-primary font-semibold transition-colors group-data-[active=true]:text-white">
-                {stage.getName(locale)}
+                {stage.name}
               </div>
             </Link>
           )
@@ -122,20 +121,21 @@ export default function StageSelector() {
                 </a>
               </div>
               <div className="flex flex-col">
-                {[{ name: t('default'), code: null, recipeId: null }, ...CustomRestaurantInfos].map(
-                  (info) => (
-                    <Link
-                      key={info.recipeId}
-                      href={info.recipeId === null ? '/book/0' : `/book/${info.recipeId}/0`}
-                      className="data-[active=true]:bg-primary-background rounded-8 text-14 flex cursor-pointer items-center justify-between px-16 py-8"
-                      data-active={recipeId === info.recipeId}
-                      onClick={handleCustomRestaurantSelect}
-                    >
-                      <div>{info.name}</div>
-                      <div className="text-primary-light">{info.code}</div>
-                    </Link>
-                  )
-                )}
+                {[
+                  { name: t('default'), code: null, recipeId: 'org' },
+                  ...CustomRestaurantInfos,
+                ].map((info) => (
+                  <Link
+                    key={info.recipeId}
+                    href={`/book/${info.recipeId}/0`}
+                    className="data-[active=true]:bg-primary-background rounded-8 text-14 flex cursor-pointer items-center justify-between px-16 py-8"
+                    data-active={info.recipeId === 'org' ? isDeluxe : sourceId === info.recipeId}
+                    onClick={handleCustomRestaurantSelect}
+                  >
+                    <div>{info.name}</div>
+                    <div className="text-primary-light">{info.code}</div>
+                  </Link>
+                ))}
               </div>
               <div
                 className="absolute top-16 right-16 -m-8 cursor-pointer p-8"

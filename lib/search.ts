@@ -1,4 +1,10 @@
-import { MenuFlowLineInfo } from '@/app/[lang]/(main)/book/[...bookPath]/page'
+import { Item } from '@/lib/restaurant/item'
+import { FlowLine } from '@/lib/restaurant/solution'
+
+export interface MenuFlowLineInfo {
+  item: Item
+  flowLines: FlowLine[]
+}
 
 export function normalizeSearchText(searchText: string): string {
   return searchText.trim().toLowerCase()

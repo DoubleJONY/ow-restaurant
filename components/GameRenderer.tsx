@@ -1,6 +1,6 @@
 import useGameManager from '@/lib/game/game-manager'
 import { Item } from '@/lib/restaurant/item'
-import { getRecipe } from '@/lib/restaurant/restaurant'
+import { sandboxRecipe } from '@/lib/restaurant/sandbox-recipe'
 import { extend, useApplication } from '@pixi/react'
 import { Effect } from 'effect'
 import { Container } from 'pixi.js'
@@ -18,7 +18,7 @@ export default function GameRenderer({
 }) {
   const { app } = useApplication()
 
-  const stage = getRecipe(null).getStage(stageId).pipe(Effect.runSync)
+  const stage = sandboxRecipe.getStage(stageId).pipe(Effect.runSync)
   const fridge = stage.fridge
 
   const gameManager = useGameManager(app, fridge, onItemCreate)

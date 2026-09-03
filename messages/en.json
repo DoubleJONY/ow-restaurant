@@ -9,6 +9,7 @@
   "default": "Default",
   "displayActionTime": "Display cooking time",
   "displayAlternative": "Display alternative",
+  "edition": "Edition",
   "displayHint": "Display hint",
   "displayMenuList": "Display menu list",
   "fridge": "Fridge",

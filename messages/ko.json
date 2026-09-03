@@ -9,6 +9,7 @@
   "default": "기본",
   "displayActionTime": "조리 시간 표시",
   "displayAlternative": "대안 표시",
+  "edition": "에디션",
   "displayHint": "힌트 표시",
   "displayMenuList": "메뉴 목록 표시",
   "fridge": "냉장고",

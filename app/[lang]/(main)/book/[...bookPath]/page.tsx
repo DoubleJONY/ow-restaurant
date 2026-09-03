@@ -1,16 +1,16 @@
 import MenuItemList from '@/components/MenuItemList'
-import { Item } from '@/lib/restaurant/item'
-import { getRecipe } from '@/lib/restaurant/restaurant'
-import { FlowLine } from '@/lib/restaurant/solution'
-import { Effect } from 'effect'
+import StageSelector from '@/components/StageSelector'
+import {
+  getAvailableDeluxeEditions,
+  getLegacyRecipeAlias,
+  getLocalizedName,
+  isRecipeLocale,
+  resolveBookSelection,
+} from '@/lib/restaurant/catalog'
+import { loadBookRecipeJson } from '@/lib/restaurant/restaurant.server'
 import { Metadata } from 'next'
 import { setRequestLocale } from 'next-intl/server'
-import { notFound } from 'next/navigation'
-
-export interface MenuFlowLineInfo {
-  item: Item
-  flowLines: FlowLine[]
-}
+import { notFound, redirect } from 'next/navigation'
 
 export default async function StagePage({
   params,
@@ -20,26 +20,31 @@ export default async function StagePage({
   const { bookPath, lang } = await params
   setRequestLocale(lang)
 
-  if (bookPath.length !== 1 && bookPath.length !== 2) notFound()
+  if (!isRecipeLocale(lang)) notFound()
 
-  let stageIdText: string
-  switch (bookPath.length) {
-    case 1:
-      stageIdText = bookPath[0]
-      break
-    case 2:
-      stageIdText = bookPath[1]
-      break
-  }
+  const { selection, stageId } = resolveBookPath(lang, bookPath)
+  const recipeJson = await loadBookRecipeJson(lang, selection)
+  const stage = recipeJson.stages.find((stage) => stage.id === stageId)
+  if (!stage) notFound()
 
-  const recipeId = bookPath.length === 1 ? null : bookPath[0]
-  const stageId = parseInt(stageIdText)
+  const stages = recipeJson.stages.map((stage) => ({
+    id: stage.id,
+    name: getLocalizedName(stage.name, lang),
+  }))
 
-  if (isNaN(stageId)) {
-    notFound()
-  }
-
-  return <MenuItemList stageId={stageId} recipeId={recipeId} />
+  return (
+    <>
+      <StageSelector
+        stageId={stageId}
+        sourceId={selection.sourceId}
+        isDeluxe={selection.kind === 'deluxe'}
+        stages={stages}
+        editions={selection.kind === 'deluxe' ? getAvailableDeluxeEditions(lang) : []}
+        customRestaurantInfo={selection.kind === 'custom' ? selection.info : null}
+      />
+      <MenuItemList stageId={stageId} recipeJson={recipeJson} />
+    </>
+  )
 }
 
 export async function generateMetadata({
@@ -49,35 +54,38 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { bookPath, lang } = await params
 
-  if (bookPath.length !== 1 && bookPath.length !== 2) notFound()
+  if (!isRecipeLocale(lang)) notFound()
 
-  let stageIdText: string
-  switch (bookPath.length) {
-    case 1:
-      stageIdText = bookPath[0]
-      break
-    case 2:
-      stageIdText = bookPath[1]
-      break
-  }
-
-  const recipeId = bookPath.length === 1 ? null : bookPath[0]
-  const stageId = parseInt(stageIdText)
-
-  if (isNaN(stageId)) {
-    notFound()
-  }
-
-  const stage = getRecipe(recipeId)
-    .getStage(stageId)
-    .pipe(
-      Effect.catchTag('RecipeStageNotFoundError', () => Effect.succeed(null)),
-      Effect.runSync
-    )
-
-  if (stage === null) return notFound()
+  const { selection, stageId } = resolveBookPath(lang, bookPath)
+  const recipeJson = await loadBookRecipeJson(lang, selection)
+  const stage = recipeJson.stages.find((stage) => stage.id === stageId)
+  if (!stage) notFound()
 
   return {
-    title: `${stage.getName(lang)} - OW Restaurant`,
+    title: `${getLocalizedName(stage.name, lang)} - OW Restaurant`,
   } satisfies Metadata
+}
+
+function resolveBookPath(lang: Parameters<typeof resolveBookSelection>[0], bookPath: string[]) {
+  if (bookPath.length === 1) {
+    const stageId = parseStageId(bookPath[0])
+    redirect(`/${lang}/book/org/${stageId}`)
+  }
+
+  if (bookPath.length !== 2) notFound()
+
+  const [sourceId, stageIdText] = bookPath
+  const stageId = parseStageId(stageIdText)
+  const legacyEditionId = getLegacyRecipeAlias(lang, sourceId)
+  if (legacyEditionId) redirect(`/${lang}/book/${legacyEditionId}/${stageId}`)
+
+  const selection = resolveBookSelection(lang, sourceId)
+  if (!selection) notFound()
+
+  return { selection, stageId }
+}
+
+function parseStageId(value: string): number {
+  if (!/^\d+$/.test(value)) notFound()
+  return Number(value)
 }

@@ -4,7 +4,7 @@ import { createBackgroundGraphics } from '@/lib/game/background'
 import { Entity } from '@/lib/game/entity'
 import { ActionType } from '@/lib/restaurant/action'
 import { Item } from '@/lib/restaurant/item'
-import { getRecipe } from '@/lib/restaurant/restaurant'
+import { sandboxRecipe } from '@/lib/restaurant/sandbox-recipe'
 import { useSettings } from '@/providers/Settings'
 import { Effect } from 'effect'
 import { useLocale, useTranslations } from 'next-intl'
@@ -29,7 +29,7 @@ export default function useGameManager(
   fridge: Item[],
   onItemCreate: (item: Item) => void
 ) {
-  const recipe = getRecipe(null)
+  const recipe = sandboxRecipe
 
   const locale = useLocale()
   const t = useTranslations()

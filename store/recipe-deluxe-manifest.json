@@ -1,0 +1,81 @@
+{
+    "schemaVersion": 1,
+    "sourceRepository": "https://github.com/DoubleJONY/ow_restaurant",
+    "sourceCommit": "37c61b6ecd143341f9efa96276d0905b34ef5ee4",
+    "sources": {
+        "ko": {
+            "file": "kr_deluxe.ow",
+            "sha256": "C0A0B9BED887D289A42ECA059489791CF77463FF6C49F6BA100F3BB61A6D8F49"
+        },
+        "en": {
+            "file": "en_deluxe.ow",
+            "sha256": "440C940965597B252495C7CB1CDD5416021C8B3F73FAFB7E8F25EDB8FF97E122"
+        },
+        "ja": {
+            "file": "jp_deluxe.ow",
+            "sha256": "D61351B7EE9E86DC7CA4BA8EF7753503306A72DFEC0311BDF36A1C7AC3A35750"
+        }
+    },
+    "recipes": {
+        "ko": {
+            "org": {
+                "file": "recipe-deluxe-ko-org.json",
+                "items": 476,
+                "actions": 549,
+                "stages": 12
+            },
+            "cafe": {
+                "file": "recipe-deluxe-ko-cafe.json",
+                "items": 399,
+                "actions": 414,
+                "stages": 12
+            },
+            "gc": {
+                "file": "recipe-deluxe-ko-gc.json",
+                "items": 464,
+                "actions": 507,
+                "stages": 12
+            }
+        },
+        "en": {
+            "org": {
+                "file": "recipe-deluxe-en-org.json",
+                "items": 476,
+                "actions": 549,
+                "stages": 12
+            },
+            "cafe": {
+                "file": "recipe-deluxe-en-cafe.json",
+                "items": 399,
+                "actions": 414,
+                "stages": 12
+            },
+            "gc": {
+                "file": "recipe-deluxe-en-gc.json",
+                "items": 464,
+                "actions": 507,
+                "stages": 12
+            }
+        },
+        "ja": {
+            "org": {
+                "file": "recipe-deluxe-ja-org.json",
+                "items": 476,
+                "actions": 549,
+                "stages": 12
+            },
+            "cafe": {
+                "file": "recipe-deluxe-ja-cafe.json",
+                "items": 399,
+                "actions": 414,
+                "stages": 12
+            },
+            "gc": {
+                "file": "recipe-deluxe-ja-gc.json",
+                "items": 464,
+                "actions": 507,
+                "stages": 12
+            }
+        }
+    }
+}

@@ -21,16 +21,13 @@ const nextConfig: NextConfig = {
     })
     return config
   },
-  async rewrites() {
+  async redirects() {
     return [
       {
         source: '/:lang/book',
-        destination: '/:lang/book/0',
+        destination: '/:lang/book/org/0',
+        permanent: false,
       },
-    ]
-  },
-  async redirects() {
-    return [
       {
         source: '/infinite',
         destination: 'https://gist.github.com/delta-kor/03ed6185fd684720c7a1287afe889166',
